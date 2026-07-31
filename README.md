@@ -1,13 +1,30 @@
 # xG Football
 
-Modèle de machine learning estimant la probabilité qu'un tir de football
-finisse au but, à partir des données ouvertes StatsBomb.
+A machine learning model that estimates the probability of a football shot
+resulting in a goal, trained on StatsBomb open data.
 
-Projet personnel en cours, démarré en juillet 2026.
+Personal project, started in July 2026.
 
-## Statut
-En construction.
+## Status
+
+Work in progress. Currently setting up the project structure.
+
+## Goal
+
+Build an expected goals (xG) model from scratch, evaluate it against
+StatsBomb's own professional xG values, and deploy it as a web application.
 
 ## Data
 
-Open data from StatsBomb, published on GitHub as statsbomb/open-data.
+Open event data from StatsBomb, available at github.com/statsbomb/open-data.
+Data files are not versioned in this repository.
+
+## Setup
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+
+
+## Credits
+
+Data provided by StatsBomb.
