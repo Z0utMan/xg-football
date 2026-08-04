@@ -31,6 +31,15 @@ COMPETITIONS = [
     (1267, 107),  # African Cup of Nations 2023
 ]
 
+COMPETITION_NAMES = {
+    (43, 106): "FIFA World Cup 2022",
+    (43, 3): "FIFA World Cup 2018",
+    (55, 282): "UEFA Euro 2024",
+    (55, 43): "UEFA Euro 2020",
+    (223, 282): "Copa America 2024",
+    (1267, 107): "African Cup of Nations 2023",
+}
+
 MODEL_INPUTS = [
     "distance",
     "angle",
@@ -53,13 +62,42 @@ CATEGORICALS = {
 }
 
 
-# ---------------------------------------------------------------- downloading
+# downloading
 
 
 def match_ids(competition_id, season_id):
     """Return the list of match ids for one competition and season."""
     url = f"{BASE_URL}/matches/{competition_id}/{season_id}.json"
     return pd.read_json(url)["match_id"].tolist()
+
+
+def match_list(competition_id, season_id):
+    """Return one row per match with a readable label, oldest first."""
+    url = f"{BASE_URL}/matches/{competition_id}/{season_id}.json"
+    matches = pd.read_json(url)
+
+    listing = pd.DataFrame(
+        {
+            "match_id": matches["match_id"],
+            "date": matches["match_date"],
+            "home": pd.json_normalize(matches["home_team"])["home_team_name"],
+            "away": pd.json_normalize(matches["away_team"])["away_team_name"],
+            "home_score": matches["home_score"],
+            "away_score": matches["away_score"],
+        }
+    )
+
+    listing["label"] = (
+        listing["home"]
+        + "  "
+        + listing["home_score"].astype(str)
+        + " - "
+        + listing["away_score"].astype(str)
+        + "  "
+        + listing["away"]
+    )
+
+    return listing.sort_values("date").reset_index(drop=True)
 
 
 def all_match_ids(competitions=None):
@@ -100,7 +138,7 @@ def get_shots_many(ids, workers=8):
     return pd.concat(kept, ignore_index=True)
 
 
-# ------------------------------------------------------------------- geometry
+#- geometry
 
 
 def _side(point, start, end):
@@ -166,7 +204,7 @@ def _freeze_frame_features(row):
     )
 
 
-# ----------------------------------------------------------------- preparation
+#preparation
 
 
 def prepare(shots, drop_penalties=True):
@@ -205,7 +243,7 @@ def prepare(shots, drop_penalties=True):
     return shots
 
 
-# -------------------------------------------------------------------- features
+# features
 
 
 def _reference_first(series, reference):
