@@ -1,5 +1,5 @@
 # xG Football
-
+https://xg-football.streamlit.app
 A machine learning model that estimates the probability of a football shot resulting in a goal, built from scratch on StatsBomb open data and benchmarked against StatsBomb's own professional xG values.
 
 Personal project, started in July 2026.
