@@ -18,7 +18,7 @@ Technically this is a binary classification problem, but the useful output is a 
 
 To find out whether the model was any good, I put 1,878 shots aside before training and never let it see them. Then I ran three things on that same set: my model, StatsBomb's professional one, and a deliberately stupid one that ignores every variable and gives each shot the same average chance of going in.
 
-The stupid one scores 0.300 on log loss, the standard way of measuring how wrong a set of probabilities is, where lower is better. StatsBomb scores 0.243. My model scores 0.249.
+The stupid one scores 0.300 on log loss, the standard way of measuring how wrong a set of probabilities is, where lower is better. StatsBomb scores 0.243. My model scores 0.250.
 
 That last figure means nothing on its own, which is exactly why the other two are there. They set the scale. One end is what you get by learning nothing at all, the other is what a company selling this data to professional clubs manages. Between those two points, my model covers 89 % of the distance.
 
@@ -54,7 +54,7 @@ The effect is stark. With the cone completely clear, meaning the keeper was beat
 
 The single most useful thing I did was compare training and test performance rather than test performance alone. The logistic regression scored 0.25673 on the data it had learned from and 0.25689 on data it had never seen, which are the same number. A model that generalises that perfectly is not overfitting, and that told me something important: the algorithm was not the bottleneck. The features were.
 
-That diagnosis is where the improvement came from. Starting with distance, angle and the categorical variables, the model reached 76.0 % of StatsBomb's gain. Adding the count of defenders in the shooting cone brought it to 82.0 %. Adding the goalkeeper's position and the distance to the nearest opponent brought it to 89.2 %. Thirteen points, none of them from touching the model.
+That diagnosis is where the improvement came from. Starting with distance, angle and the categorical variables, the model reached 76.0 % of StatsBomb's gain. Adding the count of defenders in the shooting cone brought it to 82.0 %. Adding the goalkeeper's position and the distance to the nearest opponent brought it to 89.0 %. Thirteen points, none of them from touching the model.
 
 I also tested gradient boosting, three times, and it never won. Five-fold cross-validation on the training set gave 0.25201 for logistic regression against 0.25775 for gradient boosting, with logistic regression ahead on four folds out of five. The mean difference was 0.0057 with a standard deviation across folds of 0.0073, so the gap is suggestive rather than proven. The honest conclusion is not that logistic regression is better, but that there is no evidence gradient boosting adds anything. When two models cannot be told apart, the simpler one wins, and here it is also the one whose coefficients can be read and explained, trains instantly, and demonstrably does not overfit.
 
@@ -101,11 +101,19 @@ pip install -r requirements-dev.txt
 
 
 
+## How the code is organised
+
+Three files sit at the root, each with a single responsibility. `pipeline.py` handles everything to do with the data, from downloading a match to building the model features, and knows nothing about the model itself. `train.py` trains the model, prints its performance and saves it to `models/xg_model.joblib`, alongside the exact column names and the imputation value it was fitted with. `app.py` is the Streamlit interface, and it only ever loads the saved model.
+
+The split matters more than it looks. Because the application and the training script import the same preparation function from the same file, a shot is treated identically whether it is being learned from or being displayed. Divergence between those two paths is where the nastiest production bugs come from, and this structure makes it impossible.
+
+The exploration notebook is kept separately under `notebooks/`, as a record of how the model was arrived at rather than as something the application depends on.
+
 ## Status
 
-The data pipeline, the geometric and freeze frame features, the model comparison and the calibration analysis are all complete. Still to come: shot maps drawn on a pitch, refactoring the notebook into reusable modules, an interactive web application, and public deployment.
+The model is finished and the application is live. The data pipeline, the geometric and freeze frame features, the model comparison, the calibration analysis, the shot maps and the public deployment are all done.
 
-This project is a work in progress.
+What could come next: rebuilding the deployment on AWS as an exercise, adding domestic league seasons to test how well the model travels beyond international tournaments, and using the freeze frame more thoroughly, since defender positions are currently reduced to counts and distances rather than describing the shape of the defence.
 
 
 
