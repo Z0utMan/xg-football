@@ -83,9 +83,22 @@ Finally, several things that clearly matter are not used at all: where in the go
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+streamlit run app.py
 ```
 
-The notebook downloads its data directly from the StatsBomb repository, so there is nothing to fetch by hand.
+That is enough to run the application, because the trained model is committed to the repository and everything else is downloaded from StatsBomb at runtime. Nothing has to be fetched by hand.
+
+Retraining from scratch takes a few minutes and overwrites the saved model.
+
+```bash
+python train.py
+```
+
+To open the exploration notebook as well, install the development dependencies instead, which add Jupyter on top of the ones above.
+
+```bash
+pip install -r requirements-dev.txt
+```
 
 
 
